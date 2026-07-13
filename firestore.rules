@@ -1,0 +1,76 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function isAdmin() {
+      return isSignedIn() && userDoc().data.role == 'admin';
+    }
+
+    function isStartupOwner(startupId) {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/startups/$(startupId)).data.ownerId == request.auth.uid;
+    }
+
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /startups/{startupId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn()
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.verificationStatus == 'pending';
+      allow update: if isStartupOwner(startupId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /opportunities/{opportunityId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn()
+        && isStartupOwner(request.resource.data.startupId)
+        && get(/databases/$(database)/documents/startups/$(request.resource.data.startupId)).data.verificationStatus == 'approved';
+      allow update, delete: if isSignedIn()
+        && isStartupOwner(resource.data.startupId);
+    }
+
+    match /applications/{applicationId} {
+      allow read: if isSignedIn() && (
+        resource.data.studentId == request.auth.uid ||
+        isStartupOwner(resource.data.startupId) ||
+        isAdmin()
+      );
+      allow create: if isSignedIn()
+        && request.resource.data.studentId == request.auth.uid
+        && request.resource.data.status == 'submitted';
+      allow update: if isSignedIn() && (
+        resource.data.studentId == request.auth.uid ||
+        isStartupOwner(resource.data.startupId) ||
+        isAdmin()
+      );
+    }
+
+    match /bookmarks/{userId}/items/{opportunityId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    match /notifications/{userId}/items/{notificationId} {
+      allow read, update: if isOwner(userId);
+      allow create: if isSignedIn();
+    }
+  }
+}
