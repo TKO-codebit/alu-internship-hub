@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/alu_email_policy.dart';
 import '../../../core/utils/validators.dart';
 import '../bloc/auth_bloc.dart';
 
@@ -32,6 +33,21 @@ class _SignupScreenState extends State<SignupScreen> {
     super.dispose();
   }
 
+  void _onEmailChanged(String value) {
+    final locked = AluEmailPolicy.lockedRoleForEmail(value);
+    if (locked != null && _role != locked) {
+      setState(() => _role = locked);
+    }
+  }
+
+  List<UserRole> get _availableRoles {
+    final email = _emailController.text;
+    if (email.contains('@')) {
+      return AluEmailPolicy.selectableRolesForEmail(email);
+    }
+    return [UserRole.student, UserRole.startup, UserRole.facilitator];
+  }
+
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
     final skills = _skillsController.text
@@ -54,6 +70,8 @@ class _SignupScreenState extends State<SignupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final roles = _availableRoles;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Create account')),
       body: BlocConsumer<AuthBloc, AuthState>(
@@ -82,33 +100,56 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    'Choose your role to personalize your experience.',
-                    style: TextStyle(color: AppTheme.mutedText),
+                  Text(
+                    'Students & founders: @${AppConstants.studentDomain}\nFacilitators: @${AppConstants.facilitatorDomain}',
+                    style: const TextStyle(color: AppTheme.mutedText, height: 1.5),
                   ),
                   const SizedBox(height: 24),
-                  SegmentedButton<UserRole>(
-                    segments: const [
-                      ButtonSegment(value: UserRole.student, label: Text('Student')),
-                      ButtonSegment(value: UserRole.startup, label: Text('Startup')),
-                    ],
-                    selected: {_role},
-                    onSelectionChanged: (selection) {
-                      setState(() => _role = selection.first);
-                    },
+                  TextFormField(
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: InputDecoration(
+                      labelText: 'ALU email',
+                      hintText: 'name@${AppConstants.studentDomain}',
+                    ),
+                    onChanged: _onEmailChanged,
+                    validator: (value) => Validators.emailForRole(value, _role),
                   ),
+                  const SizedBox(height: 16),
+                  if (roles.length > 1)
+                    SegmentedButton<UserRole>(
+                      segments: roles
+                          .map(
+                            (role) => ButtonSegment(
+                              value: role,
+                              label: Text(role.label, style: const TextStyle(fontSize: 12)),
+                            ),
+                          )
+                          .toList(),
+                      selected: {_role},
+                      onSelectionChanged: (selection) {
+                        setState(() => _role = selection.first);
+                      },
+                    )
+                  else
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: AppTheme.cardNavy,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: AppTheme.borderBlue),
+                      ),
+                      child: Text(
+                        'Role: ${_role.label}',
+                        style: const TextStyle(color: AppTheme.white, fontWeight: FontWeight.w600),
+                      ),
+                    ),
                   const SizedBox(height: 20),
                   TextFormField(
                     controller: _nameController,
                     decoration: const InputDecoration(labelText: 'Full name'),
                     validator: (value) => Validators.requiredField(value, label: 'Name'),
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(labelText: 'ALU email'),
-                    validator: Validators.email,
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
@@ -119,7 +160,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
-                    initialValue: _campus,
+                    value: _campus,
                     decoration: const InputDecoration(labelText: 'Campus'),
                     items: AppConstants.aluCampuses
                         .map((campus) => DropdownMenuItem(value: campus, child: Text(campus)))

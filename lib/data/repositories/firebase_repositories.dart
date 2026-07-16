@@ -1,25 +1,61 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
-import '../data/models/application_model.dart';
-import '../data/models/opportunity_model.dart';
-import '../data/models/startup_model.dart';
-import '../data/models/user_model.dart';
 import '../../core/constants/app_constants.dart';
+import '../../core/utils/alu_email_policy.dart';
+import '../models/application_model.dart';
+import '../models/opportunity_model.dart';
+import '../models/recommendation_model.dart';
+import '../models/startup_model.dart';
+import '../models/user_model.dart';
 
 class AuthRepository {
   AuthRepository({
     FirebaseAuth? auth,
     FirebaseFirestore? firestore,
+    GoogleSignIn? googleSignIn,
   })  : _auth = auth ?? FirebaseAuth.instance,
-        _firestore = firestore ?? FirebaseFirestore.instance;
+        _firestore = firestore ?? FirebaseFirestore.instance,
+        _googleSignIn = googleSignIn ??
+            GoogleSignIn(
+              scopes: ['email', 'profile'],
+            );
 
   final FirebaseAuth _auth;
   final FirebaseFirestore _firestore;
+  final GoogleSignIn _googleSignIn;
 
   Stream<User?> authStateChanges() => _auth.authStateChanges();
 
   User? get currentUser => _auth.currentUser;
+
+  void _assertAluEmail(String email) {
+    if (!AluEmailPolicy.isAllowed(email)) {
+      throw FirebaseAuthException(
+        code: 'invalid-domain',
+        message:
+            'Only ALU school emails are allowed (${AluEmailPolicy.domainHint()}).',
+      );
+    }
+  }
+
+  void _assertRoleMatchesEmail(String email, UserRole role) {
+    if (AluEmailPolicy.isFacilitatorDomain(email) && role != UserRole.facilitator) {
+      throw FirebaseAuthException(
+        code: 'invalid-role',
+        message: '@${AppConstants.facilitatorDomain} accounts must register as facilitators.',
+      );
+    }
+    if (AluEmailPolicy.isStudentDomain(email) &&
+        role != UserRole.student &&
+        role != UserRole.startup) {
+      throw FirebaseAuthException(
+        code: 'invalid-role',
+        message: '@${AppConstants.studentDomain} accounts can be students or startup founders.',
+      );
+    }
+  }
 
   Future<UserModel?> getCurrentUserProfile() async {
     final user = currentUser;
@@ -37,18 +73,23 @@ class AuthRepository {
     required String campus,
     List<String> skills = const [],
   }) async {
+    final normalizedEmail = email.trim().toLowerCase();
+    _assertAluEmail(normalizedEmail);
+    _assertRoleMatchesEmail(normalizedEmail, role);
+
     final credential = await _auth.createUserWithEmailAndPassword(
-      email: email.trim(),
+      email: normalizedEmail,
       password: password,
     );
     final uid = credential.user!.uid;
     final profile = UserModel(
       id: uid,
-      email: email.trim(),
+      email: normalizedEmail,
       fullName: fullName.trim(),
       role: role,
       campus: campus,
       skills: skills,
+      authProvider: 'email',
       createdAt: DateTime.now(),
     );
     await _firestore.collection('users').doc(uid).set(profile.toMap());
@@ -59,21 +100,84 @@ class AuthRepository {
     required String email,
     required String password,
   }) async {
+    final normalizedEmail = email.trim().toLowerCase();
+    _assertAluEmail(normalizedEmail);
+
     final credential = await _auth.signInWithEmailAndPassword(
-      email: email.trim(),
+      email: normalizedEmail,
       password: password,
     );
     final doc = await _firestore.collection('users').doc(credential.user!.uid).get();
     if (!doc.exists) {
-      throw FirebaseAuthException(code: 'profile-missing', message: 'User profile not found.');
+      throw FirebaseAuthException(
+        code: 'profile-missing',
+        message: 'User profile not found.',
+      );
     }
     return UserModel.fromMap(doc.id, doc.data()!);
   }
 
-  Future<void> signOut() => _auth.signOut();
+  Future<UserModel> signInWithGoogle({
+    required UserRole role,
+    required String campus,
+    List<String> skills = const [],
+  }) async {
+    final googleUser = await _googleSignIn.signIn();
+    if (googleUser == null) {
+      throw FirebaseAuthException(code: 'google-cancelled', message: 'Sign-in cancelled.');
+    }
+
+    final googleAuth = await googleUser.authentication;
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    final userCredential = await _auth.signInWithCredential(credential);
+    final firebaseUser = userCredential.user!;
+    final email = (firebaseUser.email ?? '').trim().toLowerCase();
+
+    _assertAluEmail(email);
+
+    final existing = await _firestore.collection('users').doc(firebaseUser.uid).get();
+    if (existing.exists) {
+      return UserModel.fromMap(existing.id, existing.data()!);
+    }
+
+    _assertRoleMatchesEmail(email, role);
+
+    final profile = UserModel(
+      id: firebaseUser.uid,
+      email: email,
+      fullName: firebaseUser.displayName ?? email.split('@').first,
+      role: AluEmailPolicy.lockedRoleForEmail(email) ?? role,
+      campus: campus,
+      skills: skills,
+      photoUrl: firebaseUser.photoURL,
+      authProvider: 'google',
+      createdAt: DateTime.now(),
+    );
+    await _firestore.collection('users').doc(firebaseUser.uid).set(profile.toMap());
+    return profile;
+  }
+
+  Future<void> signOut() async {
+    await Future.wait([
+      _auth.signOut(),
+      _googleSignIn.signOut(),
+    ]);
+  }
 
   Future<void> updateProfile(UserModel user) async {
     await _firestore.collection('users').doc(user.id).update(user.toMap());
+  }
+
+  Future<List<UserModel>> getFacilitators() async {
+    final snapshot = await _firestore
+        .collection('users')
+        .where('role', isEqualTo: UserRole.facilitator.value)
+        .get();
+    return snapshot.docs.map((doc) => UserModel.fromMap(doc.id, doc.data())).toList();
   }
 }
 
@@ -149,7 +253,7 @@ class OpportunityRepository {
     String? campus,
     String? searchQuery,
   }) {
-    Query<Map<String, dynamic>> query = _firestore
+    final query = _firestore
         .collection('opportunities')
         .where('isActive', isEqualTo: true)
         .orderBy('createdAt', descending: true);
@@ -287,12 +391,17 @@ class ApplicationRepository {
       updatedAt: DateTime.now(),
     );
     await doc.set(model.toMap());
-    await _createNotification(
-      userId: application.startupId,
-      title: 'New application received',
-      body: '${application.studentName} applied for ${application.opportunityTitle}',
-      relatedId: model.id,
-    );
+
+    final startupDoc = await _firestore.collection('startups').doc(application.startupId).get();
+    final ownerId = startupDoc.data()?['ownerId'] as String?;
+    if (ownerId != null) {
+      await _createNotification(
+        userId: ownerId,
+        title: 'New application received',
+        body: '${application.studentName} applied for ${application.opportunityTitle}',
+        relatedId: model.id,
+      );
+    }
     return model;
   }
 
@@ -311,6 +420,121 @@ class ApplicationRepository {
       title: 'Application update',
       body: 'Your application for $opportunityTitle is now ${status.label}',
       relatedId: applicationId,
+    );
+  }
+
+  Future<void> _createNotification({
+    required String userId,
+    required String title,
+    required String body,
+    String? relatedId,
+  }) async {
+    final doc = _firestore
+        .collection('notifications')
+        .doc(userId)
+        .collection('items')
+        .doc();
+    await doc.set({
+      'title': title,
+      'body': body,
+      'isRead': false,
+      'relatedId': relatedId,
+      'createdAt': Timestamp.fromDate(DateTime.now()),
+    });
+  }
+}
+
+class RecommendationRepository {
+  RecommendationRepository({FirebaseFirestore? firestore})
+      : _firestore = firestore ?? FirebaseFirestore.instance;
+
+  final FirebaseFirestore _firestore;
+
+  Stream<List<RecommendationModel>> watchStudentRecommendations(String studentId) {
+    return _firestore
+        .collection('recommendations')
+        .where('studentId', isEqualTo: studentId)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => RecommendationModel.fromMap(doc.id, doc.data()))
+              .toList(),
+        );
+  }
+
+  Stream<List<RecommendationModel>> watchFacilitatorRecommendations(
+    String facilitatorId,
+  ) {
+    return _firestore
+        .collection('recommendations')
+        .where('facilitatorId', isEqualTo: facilitatorId)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => RecommendationModel.fromMap(doc.id, doc.data()))
+              .toList(),
+        );
+  }
+
+  Future<RecommendationModel> requestRecommendation({
+    required UserModel student,
+    required UserModel facilitator,
+    required String purpose,
+    required String message,
+  }) async {
+    final doc = _firestore.collection('recommendations').doc();
+    final model = RecommendationModel(
+      id: doc.id,
+      studentId: student.id,
+      studentName: student.fullName,
+      facilitatorId: facilitator.id,
+      facilitatorName: facilitator.fullName,
+      purpose: purpose,
+      message: message,
+      status: RecommendationStatus.pending,
+      linkedInUrl: student.linkedInUrl,
+      githubUrl: student.githubUrl,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+    await doc.set(model.toMap());
+
+    await _createNotification(
+      userId: facilitator.id,
+      title: 'Recommendation request',
+      body: '${student.fullName} requested a recommendation for $purpose',
+      relatedId: model.id,
+    );
+    return model;
+  }
+
+  Future<void> respondToRecommendation({
+    required String recommendationId,
+    required String studentId,
+    required RecommendationStatus status,
+    String? recommendationText,
+  }) async {
+    await _firestore.collection('recommendations').doc(recommendationId).update({
+      'status': status.value,
+      'recommendationText': recommendationText,
+      'updatedAt': Timestamp.fromDate(DateTime.now()),
+    });
+
+    final label = status == RecommendationStatus.completed
+        ? 'completed'
+        : status == RecommendationStatus.declined
+            ? 'declined'
+            : 'updated';
+
+    await _createNotification(
+      userId: studentId,
+      title: 'Recommendation $label',
+      body: status == RecommendationStatus.completed
+          ? 'Your facilitator submitted a recommendation.'
+          : 'Your recommendation request was declined.',
+      relatedId: recommendationId,
     );
   }
 

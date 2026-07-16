@@ -5,11 +5,12 @@ import '../../core/constants/app_constants.dart';
 import '../../data/models/user_model.dart';
 import '../admin/admin_verification_screen.dart';
 import '../applications/views/applications_screen.dart';
-import '../auth/bloc/auth_bloc.dart';
 import '../bookmarks/views/bookmarks_screen.dart';
 import '../opportunities/views/discover_screen.dart';
 import '../opportunities/views/post_opportunity_screen.dart';
 import '../profile/profile_screen.dart';
+import '../recommendations/views/facilitator_requests_screen.dart';
+import '../recommendations/views/student_recommendations_screen.dart';
 import '../startups/views/startup_setup_screen.dart';
 
 class AppShell extends StatefulWidget {
@@ -26,10 +27,8 @@ class _AppShellState extends State<AppShell> {
 
   @override
   Widget build(BuildContext context) {
-    final pages = _buildPages();
-
     return Scaffold(
-      body: IndexedStack(index: _index, children: pages),
+      body: IndexedStack(index: _index, children: _buildPages()),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _index,
         onTap: (value) => setState(() => _index = value),
@@ -45,6 +44,7 @@ class _AppShellState extends State<AppShell> {
         return [
           DiscoverScreen(user: widget.user),
           ApplicationsScreen(user: widget.user),
+          StudentRecommendationsScreen(user: widget.user),
           BookmarksScreen(user: widget.user),
           ProfileScreen(user: widget.user),
         ];
@@ -55,10 +55,16 @@ class _AppShellState extends State<AppShell> {
           StartupSetupScreen(user: widget.user),
           ProfileScreen(user: widget.user),
         ];
+      case UserRole.facilitator:
+        return [
+          DiscoverScreen(user: widget.user),
+          FacilitatorRequestsScreen(user: widget.user),
+          ProfileScreen(user: widget.user),
+        ];
       case UserRole.admin:
         return [
           DiscoverScreen(user: widget.user),
-          AdminVerificationScreen(),
+          const AdminVerificationScreen(),
           ProfileScreen(user: widget.user),
         ];
     }
@@ -70,6 +76,7 @@ class _AppShellState extends State<AppShell> {
         return const [
           BottomNavigationBarItem(icon: Icon(Icons.explore_outlined), label: 'Discover'),
           BottomNavigationBarItem(icon: Icon(Icons.assignment_outlined), label: 'Applications'),
+          BottomNavigationBarItem(icon: Icon(Icons.rate_review_outlined), label: 'References'),
           BottomNavigationBarItem(icon: Icon(Icons.bookmark_outline), label: 'Saved'),
           BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Profile'),
         ];
@@ -78,6 +85,12 @@ class _AppShellState extends State<AppShell> {
           BottomNavigationBarItem(icon: Icon(Icons.explore_outlined), label: 'Discover'),
           BottomNavigationBarItem(icon: Icon(Icons.inbox_outlined), label: 'Applicants'),
           BottomNavigationBarItem(icon: Icon(Icons.storefront_outlined), label: 'Startup'),
+          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Profile'),
+        ];
+      case UserRole.facilitator:
+        return const [
+          BottomNavigationBarItem(icon: Icon(Icons.explore_outlined), label: 'Discover'),
+          BottomNavigationBarItem(icon: Icon(Icons.inbox_outlined), label: 'Requests'),
           BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Profile'),
         ];
       case UserRole.admin:

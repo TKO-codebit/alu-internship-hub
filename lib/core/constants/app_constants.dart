@@ -1,4 +1,4 @@
-enum UserRole { student, startup, admin }
+enum UserRole { student, startup, facilitator, admin }
 
 extension UserRoleX on UserRole {
   String get value => name;
@@ -16,6 +16,8 @@ extension UserRoleX on UserRole {
         return 'Student';
       case UserRole.startup:
         return 'Startup Founder';
+      case UserRole.facilitator:
+        return 'Facilitator';
       case UserRole.admin:
         return 'Admin';
     }
@@ -61,8 +63,36 @@ extension ApplicationStatusX on ApplicationStatus {
   }
 }
 
+enum RecommendationStatus { pending, completed, declined }
+
+extension RecommendationStatusX on RecommendationStatus {
+  String get value => name;
+
+  static RecommendationStatus fromString(String value) {
+    return RecommendationStatus.values.firstWhere(
+      (status) => status.name == value,
+      orElse: () => RecommendationStatus.pending,
+    );
+  }
+
+  String get label {
+    switch (this) {
+      case RecommendationStatus.pending:
+        return 'Pending';
+      case RecommendationStatus.completed:
+        return 'Completed';
+      case RecommendationStatus.declined:
+        return 'Declined';
+    }
+  }
+}
+
 class AppConstants {
   static const appName = 'Campus Launchpad';
+  static const studentDomain = 'alustudent.com';
+  static const facilitatorDomain = 'alueducation.com';
+  static const allowedDomains = [studentDomain, facilitatorDomain];
+
   static const aluCampuses = ['Kigali', 'Mauritius', 'Online'];
   static const opportunityCategories = [
     'Software Development',

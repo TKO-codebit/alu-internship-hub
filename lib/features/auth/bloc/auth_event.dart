@@ -42,6 +42,21 @@ class AuthSignInRequested extends AuthEvent {
   List<Object?> get props => [email];
 }
 
+class AuthGoogleSignInRequested extends AuthEvent {
+  const AuthGoogleSignInRequested({
+    required this.role,
+    required this.campus,
+    this.skills = const [],
+  });
+
+  final UserRole role;
+  final String campus;
+  final List<String> skills;
+
+  @override
+  List<Object?> get props => [role, campus, skills];
+}
+
 class AuthSignOutRequested extends AuthEvent {
   const AuthSignOutRequested();
 }
