@@ -1,4 +1,4 @@
-# ALU-INTHUB (Campus Launchpad)
+# ALUhub (Campus Launchpad)
 
 ALU internship marketplace connecting students with student-led startups and early-stage ventures on campus.
 
