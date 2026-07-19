@@ -63,7 +63,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         child: const Text(
                           'ALU Ecosystem',
                           style: TextStyle(
-                            color: AppTheme.gold,
+                            color: AppTheme.red,
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
                           ),
@@ -78,17 +78,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: AppTheme.cardNavy,
-                      border: Border.all(color: AppTheme.gold, width: 2),
+                      border: Border.all(color: AppTheme.red, width: 2),
                       boxShadow: [
                         BoxShadow(
-                          color: AppTheme.gold.withValues(alpha: 0.28),
+                          color: AppTheme.red.withValues(alpha: 0.28),
                           blurRadius: 32,
                           offset: const Offset(0, 14),
                         ),
                       ],
                     ),
                     child: const Center(
-                      child: Icon(Icons.rocket_launch_rounded, color: AppTheme.gold, size: 56),
+                      child: Icon(Icons.rocket_launch_rounded, color: AppTheme.red, size: 56),
                     ),
                   ),
                   const SizedBox(height: 34),
@@ -119,7 +119,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     ),
                     child: const Row(
                       children: [
-                        Icon(Icons.verified_rounded, color: AppTheme.gold, size: 28),
+                        Icon(Icons.verified_rounded, color: AppTheme.red, size: 28),
                         SizedBox(width: 14),
                         Expanded(
                           child: Text(

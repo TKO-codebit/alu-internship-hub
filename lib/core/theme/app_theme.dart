@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
+  // ALU brand palette — navy blue backgrounds with red accents
   static const Color navy = Color(0xFF001B36);
   static const Color deepNavy = Color(0xFF001225);
   static const Color cardNavy = Color(0xFF0B2745);
   static const Color softNavy = Color(0xFF123456);
-  static const Color gold = Color(0xFFFFB703);
-  static const Color goldDark = Color(0xFFE69A00);
+  static const Color red = Color(0xFFC41230);
+  static const Color redDark = Color(0xFF9E0F26);
   static const Color white = Color(0xFFFFFFFF);
   static const Color softWhite = Color(0xFFF5F7FA);
   static const Color mutedText = Color(0xFF9FB3C8);
@@ -19,10 +20,10 @@ class AppTheme {
     final base = ThemeData(
       brightness: Brightness.dark,
       scaffoldBackgroundColor: navy,
-      primaryColor: gold,
+      primaryColor: red,
       colorScheme: const ColorScheme.dark(
-        primary: gold,
-        secondary: gold,
+        primary: red,
+        secondary: red,
         surface: cardNavy,
         error: Colors.redAccent,
       ),
@@ -43,10 +44,14 @@ class AppTheme {
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: deepNavy,
-        selectedItemColor: gold,
+        selectedItemColor: red,
         unselectedItemColor: mutedText,
         type: BottomNavigationBarType.fixed,
         elevation: 12,
+      ),
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: red,
+        foregroundColor: white,
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -65,13 +70,13 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: gold, width: 1.5),
+          borderSide: const BorderSide(color: red, width: 1.5),
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: gold,
-          foregroundColor: deepNavy,
+          backgroundColor: red,
+          foregroundColor: white,
           minimumSize: const Size.fromHeight(52),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(18),
@@ -84,8 +89,8 @@ class AppTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: gold,
-          side: const BorderSide(color: gold),
+          foregroundColor: red,
+          side: const BorderSide(color: red),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(18),
           ),
@@ -93,9 +98,9 @@ class AppTheme {
       ),
       chipTheme: ChipThemeData(
         backgroundColor: softNavy,
-        selectedColor: gold.withValues(alpha: 0.25),
+        selectedColor: red.withValues(alpha: 0.25),
         labelStyle: const TextStyle(color: white),
-        secondaryLabelStyle: const TextStyle(color: deepNavy),
+        secondaryLabelStyle: const TextStyle(color: white),
         side: const BorderSide(color: borderBlue),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),

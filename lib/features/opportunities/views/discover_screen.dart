@@ -97,6 +97,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                   ...state.opportunities.map((opportunity) {
                     return OpportunityCard(
                       opportunity: opportunity,
+                      userId: widget.user.id,
                       onTap: () {
                         Navigator.push(
                           context,

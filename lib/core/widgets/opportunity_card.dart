@@ -12,11 +12,13 @@ class OpportunityCard extends StatelessWidget {
     super.key,
     required this.opportunity,
     required this.onTap,
+    this.userId,
     this.showBookmark = true,
   });
 
   final OpportunityModel opportunity;
   final VoidCallback onTap;
+  final String? userId;
   final bool showBookmark;
 
   @override
@@ -41,10 +43,10 @@ class OpportunityCard extends StatelessWidget {
                     width: 44,
                     height: 44,
                     decoration: BoxDecoration(
-                      color: AppTheme.gold.withValues(alpha: 0.15),
+                      color: AppTheme.red.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    child: const Icon(Icons.rocket_launch_rounded, color: AppTheme.gold),
+                    child: const Icon(Icons.rocket_launch_rounded, color: AppTheme.red),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -67,16 +69,19 @@ class OpportunityCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  if (showBookmark)
+                  if (showBookmark && userId != null)
                     IconButton(
                       onPressed: bookmarkState.isUpdating
                           ? null
                           : () {
-                              // Bookmark toggle handled by parent via userId in shell
+                              context.read<BookmarkCubit>().toggle(
+                                    userId: userId!,
+                                    opportunityId: opportunity.id,
+                                  );
                             },
                       icon: Icon(
                         isBookmarked ? Icons.bookmark : Icons.bookmark_border,
-                        color: AppTheme.gold,
+                        color: AppTheme.red,
                       ),
                     ),
                 ],
@@ -201,8 +206,8 @@ class FilterBar extends StatelessWidget {
         label: Text(label),
         selected: isSelected,
         onSelected: (_) => onChanged(label),
-        selectedColor: AppTheme.gold.withValues(alpha: 0.25),
-        checkmarkColor: AppTheme.gold,
+        selectedColor: AppTheme.red.withValues(alpha: 0.25),
+        checkmarkColor: AppTheme.red,
       ),
     );
   }

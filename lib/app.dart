@@ -81,7 +81,7 @@ class AuthGate extends StatelessWidget {
       builder: (context, state) {
         if (state is AuthLoading || state is AuthInitial) {
           return const Scaffold(
-            body: Center(child: CircularProgressIndicator(color: AppTheme.gold)),
+            body: Center(child: CircularProgressIndicator(color: AppTheme.red)),
           );
         }
         if (state is AuthAuthenticated) {
