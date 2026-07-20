@@ -1,7 +1,4 @@
-# Uncomment this line to define a global platform for your project
 platform :ios, '13.0'
-# Force the global Flutter Firebase integration to use a version compatible with your older Xcode compiler
-$FirebaseSDKVersion = '11.5.0'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
@@ -28,15 +25,28 @@ end
 require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelper'), flutter_root)
 
 flutter_ios_podfile_setup
+
 target 'Runner' do
   use_frameworks!
-  
-  # Add this line to force a compatible version of Firebase iOS SDK:
-  pod 'Firebase', '10.24.0'
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
   target 'RunnerTests' do
     inherit! :search_paths
+  end
+end
+
+# This block forces the compiler to ignore modern Swift 6 syntax checks that your Mac's older compiler cannot handle
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    flutter_additional_ios_build_settings(target)
+    
+    if target.name.start_with?('Firebase')
+      target.build_configurations.each do |config|
+        config.build_settings['SWIFT_VERSION'] = '5.0'
+        config.build_settings['OTHER_SWIFT_FLAGS'] ||= ['$(inherited)']
+        config.build_settings['OTHER_SWIFT_FLAGS'] << '-Xfrontend' << '-disable-implicit-concurrency-module-import'
+      end
+    end
   end
 end
 
