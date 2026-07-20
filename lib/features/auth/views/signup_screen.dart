@@ -92,7 +92,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Join Campus Launchpad',
+                    'Join ALUhub',
                     style: TextStyle(
                       color: AppTheme.white,
                       fontSize: 28,

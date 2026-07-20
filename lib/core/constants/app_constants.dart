@@ -88,7 +88,7 @@ extension RecommendationStatusX on RecommendationStatus {
 }
 
 class AppConstants {
-  static const appName = 'Campus Launchpad';
+  static const appName = 'ALUhub';
   static const studentDomain = 'alustudent.com';
   static const facilitatorDomain = 'alueducation.com';
   static const allowedDomains = [studentDomain, facilitatorDomain];

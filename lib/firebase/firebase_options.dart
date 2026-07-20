@@ -11,7 +11,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError('Campus Launchpad targets mobile only.');
+      throw UnsupportedError('ALUhub targets mobile only.');
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:

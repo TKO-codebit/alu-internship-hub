@@ -13,8 +13,8 @@ import 'features/recommendations/cubit/recommendation_cubit.dart';
 import 'features/shell/app_shell.dart';
 import 'features/startups/cubit/startup_cubit.dart';
 
-class CampusLaunchpadApp extends StatelessWidget {
-  const CampusLaunchpadApp({super.key});
+class ALUhubApp extends StatelessWidget {
+  const ALUhubApp({super.key});
 
   @override
   Widget build(BuildContext context) {
