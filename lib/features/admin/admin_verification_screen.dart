@@ -4,8 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/common_widgets.dart';
-import '../../startups/cubit/startup_cubit.dart';
-
+import '../startups/cubit/startup_cubit.dart';
 class AdminVerificationScreen extends StatefulWidget {
   const AdminVerificationScreen({super.key});
 
