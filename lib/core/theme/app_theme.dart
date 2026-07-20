@@ -98,7 +98,7 @@ class AppTheme {
       ),
       chipTheme: ChipThemeData(
         backgroundColor: softNavy,
-        selectedColor: red.withValues(alpha: 0.25),
+        selectedColor: red.withOpacity(0.25),
         labelStyle: const TextStyle(color: white),
         secondaryLabelStyle: const TextStyle(color: white),
         side: const BorderSide(color: borderBlue),

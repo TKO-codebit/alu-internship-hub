@@ -123,9 +123,9 @@ class _PostOpportunityScreenState extends State<PostOpportunityScreen> {
                   margin: const EdgeInsets.only(bottom: 16),
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: AppTheme.warning.withValues(alpha: 0.15),
+                    color: AppTheme.warning.withOpacity(0.15),
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: AppTheme.warning.withValues(alpha: 0.5)),
+                    border: Border.all(color: AppTheme.warning.withOpacity(0.5)),
                   ),
                   child: const Text(
                     'Your startup is pending verification. You can post roles once an admin approves your profile.',

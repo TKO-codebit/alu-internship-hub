@@ -81,7 +81,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       border: Border.all(color: AppTheme.red, width: 2),
                       boxShadow: [
                         BoxShadow(
-                          color: AppTheme.red.withValues(alpha: 0.28),
+                          color: AppTheme.red.withOpacity(0.28),
                           blurRadius: 32,
                           offset: const Offset(0, 14),
                         ),
@@ -113,7 +113,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(18),
                     decoration: BoxDecoration(
-                      color: AppTheme.cardNavy.withValues(alpha: 0.95),
+                      color: AppTheme.cardNavy.withOpacity(0.95),
                       borderRadius: BorderRadius.circular(24),
                       border: Border.all(color: AppTheme.borderBlue),
                     ),

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../core/constants/app_constants.dart';
 import '../../../data/models/application_model.dart';
 import '../../../data/repositories/firebase_repositories.dart';
 

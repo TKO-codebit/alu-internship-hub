@@ -207,9 +207,9 @@ class _OpportunityDetailScreenState extends State<OpportunityDetailScreen> {
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppTheme.red.withValues(alpha: 0.12),
+                color: AppTheme.red.withOpacity(0.12),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppTheme.red.withValues(alpha: 0.4)),
+                border: Border.all(color: AppTheme.red.withOpacity(0.4)),
               ),
               child: const Row(
                 children: [

@@ -43,7 +43,7 @@ class OpportunityCard extends StatelessWidget {
                     width: 44,
                     height: 44,
                     decoration: BoxDecoration(
-                      color: AppTheme.red.withValues(alpha: 0.15),
+                      color: AppTheme.red.withOpacity(0.15),
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: const Icon(Icons.rocket_launch_rounded, color: AppTheme.red),
@@ -206,7 +206,7 @@ class FilterBar extends StatelessWidget {
         label: Text(label),
         selected: isSelected,
         onSelected: (_) => onChanged(label),
-        selectedColor: AppTheme.red.withValues(alpha: 0.25),
+        selectedColor: AppTheme.red.withOpacity(0.25),
         checkmarkColor: AppTheme.red,
       ),
     );

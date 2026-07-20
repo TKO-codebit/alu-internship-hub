@@ -96,7 +96,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               CircleAvatar(
                 radius: 42,
-                backgroundColor: AppTheme.red.withValues(alpha: 0.2),
+                backgroundColor: AppTheme.red.withOpacity(0.2),
                 child: Text(
                   widget.user.fullName.isNotEmpty ? widget.user.fullName[0].toUpperCase() : '?',
                   style: const TextStyle(
