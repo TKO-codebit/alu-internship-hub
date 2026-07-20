@@ -1,6 +1,6 @@
 {
-    "name": "campus_launchpad",
-    "short_name": "campus_launchpad",
+    "name": "ALUhub",
+    "short_name": "ALUhub",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#001B36",
