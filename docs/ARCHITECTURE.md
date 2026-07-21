@@ -1,8 +1,8 @@
-# Campus Launchpad — System Architecture
+# ALUhub — System Architecture
 
 ## Problem statement
 
-ALU students often struggle to secure internships at large organizations, while student founders on campus need affordable talent in software, design, marketing, operations, and research. **Campus Launchpad** bridges this gap with a verified, ALU-specific marketplace.
+ALU students often struggle to secure internships at large organizations, while student founders on campus need affordable talent in software, design, marketing, operations, and research. **ALUhub** bridges this gap with a verified, ALU-specific marketplace.
 
 ## High-level architecture
 

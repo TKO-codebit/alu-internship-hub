@@ -1,4 +1,4 @@
-# Firebase Setup — Campus Launchpad
+# Firebase Setup — ALUhub
 
 Follow these steps to connect the app to your Firebase project. Do this **before** running the app on a device or emulator.
 
