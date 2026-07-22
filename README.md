@@ -1,5 +1,5 @@
 # ALUhub (ALUhub)
-https://drive.google.com/file/d/1soso59nzhqI8uFrYxZ29wGG5r-YxzEcr/view?usp=drive_link
+https://drive.google.com/file/d/1g_JBb0gqwwrcJrdshG146ZGov1yuVAkR/view?usp=drive_link
 
 ALU internship marketplace connecting students with student-led startups and early-stage ventures on campus.
 
