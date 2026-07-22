@@ -12,7 +12,20 @@
           "package_name": "com.alu.campus_launchpad"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "171878797779-nii35bpk2q9e13rc0cbq3m039n746a1v.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.alu.campus_launchpad",
+            "certificate_hash": "b6994f7f2b0bc85f12bb337201ac390a0d43cd81"
+          }
+        },
+        {
+          "client_id": "171878797779-4hq420m67dnutp7b311qqg990lt1vqrq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDmRBP1rmdhHZnFUBjmKQilDhafmFueB_U"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "171878797779-4hq420m67dnutp7b311qqg990lt1vqrq.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "171878797779-3rvkorpegt3j4runbd2q5hven4mq1csn.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.alu.campusLaunchpad"
+              }
+            }
+          ]
         }
       }
     }
